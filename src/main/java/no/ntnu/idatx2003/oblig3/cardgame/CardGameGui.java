@@ -7,12 +7,19 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
+import org.w3c.dom.Node;
 
+import java.awt.*;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
+
+import static javafx.scene.layout.TilePane.setAlignment;
 
 /**
  * Represents a GUI for Cardgame
@@ -23,6 +30,8 @@ public class CardGameGui extends Application {
 
   private final DeckOfCards deck = new DeckOfCards();
 
+
+
   /**
    * Starts the application.
    *
@@ -32,11 +41,18 @@ public class CardGameGui extends Application {
 
   @Override
   public void start(Stage stage) throws Exception {
+
     BorderPane borderPane = new BorderPane();
+
+    HBox displayArea = new HBox(); // Change VBox to HBox for horizontal layout
+    displayArea.setAlignment(Pos.CENTER);
+    displayArea.setPadding(new Insets(10));
+    displayArea.setSpacing(10);
 
     /**
      * Handles the action event for dealing a hand of cards.
      */
+
     VBox dealHandBox = new VBox(10);
     Button dealhand = new Button("Deal hand");
     dealhand.setOnAction(new EventHandler<ActionEvent>() {
@@ -65,7 +81,7 @@ public class CardGameGui extends Application {
     checkhand.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent actionEvent) {
-        checkHand();
+        analyzeHand();
       }
     });
 
@@ -78,9 +94,12 @@ public class CardGameGui extends Application {
     handsDisplayBox.setMinSize(300, 300);
     handsDisplayBox.setMaxSize(300, 300);
     handsDisplayBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+    handsDisplayBox.setAlignment(Pos.CENTER);
+
+    handsDisplayBox.getChildren().add(displayArea);
 
     VBox buttonContainer = new VBox(10);
-    buttonContainer.getChildren().addAll(dealhand,checkhand);
+    buttonContainer.getChildren().addAll(dealhand, checkhand);
     buttonContainer.setAlignment(Pos.CENTER);
 
     buttonContainer.setPadding(new Insets(10));
@@ -96,29 +115,26 @@ public class CardGameGui extends Application {
     stage.setTitle("Card Game");
     stage.setScene(scene);
     stage.show();
-    }
+  }
 
   // Method to check the hand
-  private void checkHand() {
-    // Implement your logic for checking the hand here
+  private void analyzeHand() {
+    // Get the current hand from the DeckOfCards instance
+    List<PlayingCard> hand = deck.dealHand(5);
+
+    // Call the methods from HandAnalyzer and perform the analyses
+    int sum = CheckCardAnalize.sumOfCardValues(hand);
+    String hearts = CheckCardAnalize.getHeartsCards(hand);
+    boolean hasSparDame = CheckCardAnalize.hasQueenOfSpades(hand);
+    boolean isFiveFlush = CheckCardAnalize.isFiveFlush(hand);
+
+    // Output the results
+    System.out.println("Sum of card values: " + sum);
+    System.out.println("Hearts: " + hearts);
+    System.out.println("Has Spar Dame: " + hasSparDame);
+    System.out.println("Is 5-flush: " + isFiveFlush);
   }
 
-
-  // Custom class representing a visual representation of a card
-  private class CardView extends Pane {
-    public CardView(PlayingCard card) {
-      // Create a visual representation of the card
-      // You can customize this based on your requirements
-      setPrefSize(100, 100);
-      setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
-      setBorder(new Border(new BorderStroke(Paint.valueOf("black"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-      setStyle("-fx-font-size: 16; -fx-alignment: center;");
-      setCenterShape(true);
-      setLayoutX(card.getFace() * 10);
-      setLayoutY(card.getFace() * 10);
-      setAccessibleText(card.getAsString());
-    }
-  }
 
   // Display area for showing the cards
   private final VBox displayArea = new VBox();
@@ -130,4 +146,29 @@ public class CardGameGui extends Application {
   public static void appMain(String[] args) {
     launch(args);
   }
+
+
+    // Method to check if the cards form a 5-flush
+    private class CardView extends Pane {
+      public CardView(PlayingCard card) {
+        // Create an image view for the card
+        ImageView imageView = new ImageView();
+        // Load the image based on the card's suit and rank
+        String imageName = "/cards/" + card.getAsString() + ".png"; // Assuming the images are stored in the "card" directory
+        InputStream inputStream = getClass().getResourceAsStream(imageName);
+        if (inputStream != null) {
+          javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(imageName));
+          imageView.setImage(image);
+          imageView.setFitWidth(50);
+          imageView.setFitHeight(100);// Centering each CardView
+          setPadding(new Insets(20)); // Adjusting padding
+          getChildren().add(imageView);
+        } else {
+          System.out.println("Image file not found: " + imageName);
+        }
+      }
+
+
+
+    }
 }
