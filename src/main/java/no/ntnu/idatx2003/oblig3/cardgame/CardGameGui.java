@@ -13,7 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 import org.w3c.dom.Node;
-
+import javafx.scene.control.TextArea;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -29,6 +29,10 @@ import static javafx.scene.layout.TilePane.setAlignment;
 public class CardGameGui extends Application {
 
   private final DeckOfCards deck = new DeckOfCards();
+
+  private final TextArea outputArea = new TextArea();
+
+  private boolean handDealt = false;
 
 
 
@@ -48,6 +52,22 @@ public class CardGameGui extends Application {
     displayArea.setAlignment(Pos.CENTER);
     displayArea.setPadding(new Insets(10));
     displayArea.setSpacing(10);
+    /**
+     * Handles the action event for checking the hand of cards.
+     */
+
+    VBox checkHandBox = new VBox(10);
+    Button checkhand = new Button("Check hand");
+
+    checkhand.setOnAction(new EventHandler<ActionEvent>() {
+      @Override
+      public void handle(ActionEvent actionEvent) {
+        if ( handDealt){
+            analyzeHand();
+          checkhand.setDisable(true);
+        }
+      }
+    });
 
     /**
      * Handles the action event for dealing a hand of cards.
@@ -66,24 +86,15 @@ public class CardGameGui extends Application {
         for (PlayingCard card : hand) {
           displayArea.getChildren().add(new CardView(card));
         }
+        checkhand.setDisable(false);
+        handDealt = true;
       }
     });
+
     dealHandBox.getChildren().add(dealhand);
     dealHandBox.setPadding(new Insets(10));
     dealHandBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
-    /**
-     * Handles the action event for checking the hand of cards.
-     */
-
-    VBox checkHandBox = new VBox(10);
-    Button checkhand = new Button("Check hand");
-    checkhand.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent actionEvent) {
-        analyzeHand();
-      }
-    });
 
     checkHandBox.getChildren().add(checkhand);
     checkHandBox.setPadding(new Insets(10));
@@ -111,6 +122,24 @@ public class CardGameGui extends Application {
 
     borderPane.setCenter(contentBox);
 
+
+    VBox contentAndAnalysisBox = new VBox(10);
+    contentAndAnalysisBox.getChildren().addAll(contentBox, outputArea); // Add both contentBox and analysisBox to the VBox
+
+    contentAndAnalysisBox.setAlignment(Pos.CENTER); // Center the VBox contents
+    VBox.setMargin(outputArea, new Insets(0,0,0,-100)); // Add margin to the analysisBox
+
+    borderPane.setCenter(contentAndAnalysisBox);
+
+
+    outputArea.setEditable(false);
+    outputArea.setWrapText(true);
+    outputArea.setMaxWidth(300); // Set maximum width
+    outputArea.setMaxHeight(150); // Set maximum height
+
+
+
+
     Scene scene = new Scene(borderPane, 800, 600);
     stage.setTitle("Card Game");
     stage.setScene(scene);
@@ -128,11 +157,11 @@ public class CardGameGui extends Application {
     boolean hasSparDame = CheckCardAnalize.hasQueenOfSpades(hand);
     boolean isFiveFlush = CheckCardAnalize.isFiveFlush(hand);
 
-    // Output the results
-    System.out.println("Sum of card values: " + sum);
-    System.out.println("Hearts: " + hearts);
-    System.out.println("Has Spar Dame: " + hasSparDame);
-    System.out.println("Is 5-flush: " + isFiveFlush);
+    // Update the TextArea with the analysis results
+    outputArea.setText("Sum of card values: " + sum +
+      "    Hearts: " + hearts + '\n' + '\n' +
+      " Has Spar Dame: " + hasSparDame +
+      "     Is 5-flush: " + isFiveFlush);
   }
 
 
@@ -160,7 +189,7 @@ public class CardGameGui extends Application {
           javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(imageName));
           imageView.setImage(image);
           imageView.setFitWidth(50);
-          imageView.setFitHeight(100);// Centering each CardView
+          imageView.setFitHeight(80);// Centering each CardView
           setPadding(new Insets(20)); // Adjusting padding
           getChildren().add(imageView);
         } else {

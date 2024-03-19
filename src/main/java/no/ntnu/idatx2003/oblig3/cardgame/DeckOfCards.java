@@ -8,13 +8,12 @@ import java.util.*;
  */
 
 public class DeckOfCards {
-  private  final List<PlayingCard> deck;
+  private final List<PlayingCard> deck;
 
   /**
    * Intializes a new deck of cards with 52 cards.
-   *
    */
-  public DeckOfCards(){
+  public DeckOfCards() {
     deck = new ArrayList<>();
 
     char[] suits = {'S', 'H', 'D', 'C'};
@@ -25,31 +24,24 @@ public class DeckOfCards {
     }
   }
 
-  /**
-   * Shuffles the deck of cards.
-   */
-
-  public void shuffle(){
-    Collections.shuffle(deck);
-  }
 
   /**
-   * Deals a hand of cards from the deck.
+   * Deals a hand of cards from the deck everytime the method is called.
    *
    * @param n the number of cards to deal
    * @return Return a hand of n cards
    */
-  public List<PlayingCard> dealHand(int n){
+  public List<PlayingCard> dealHand(int n) {
     if (n < 1 || n > deck.size()) {
       throw new IllegalArgumentException("Parameter n must be a number between 0 to 52");
     }
     List<PlayingCard> hand = new ArrayList<>();
     Random random = new Random();
+
     for (int i = 0; i < n; i++) {
       int index = random.nextInt(deck.size());
-      hand.add(deck.remove(index));
+      hand.add(deck.get(index));
     }
     return hand;
-
   }
 }

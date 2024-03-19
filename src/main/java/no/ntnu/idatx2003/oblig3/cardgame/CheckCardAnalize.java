@@ -1,5 +1,6 @@
 package no.ntnu.idatx2003.oblig3.cardgame;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,17 +36,20 @@ public class CheckCardAnalize {
    */
   // Hent ut bare kort som er av fargen "Hjerter"
   public static String getHeartsCards(List<PlayingCard> hand) {
-    List<PlayingCard> heartsCards = hand.stream()
-      .filter(card -> card.getSuit() == 'H')
-      .collect(Collectors.toList());
+    List<String> heartsCardNames = new ArrayList<>();
+    for (PlayingCard card : hand) {
+      String imageName = "/cards/" + card.getAsString() + ".png";
+      if (imageName.startsWith("/cards/H")) {
+        heartsCardNames.add(card.getAsString());
 
-    if (heartsCards.isEmpty()) {
-      return "No Hearts";
-    } else {
-      return heartsCards.stream()
-        .map(PlayingCard::getAsString)
-        .collect(Collectors.joining(" "));
+        if (heartsCardNames.isEmpty()) {
+          return "No Hearts";
+        } else {
+          return String.join(", ", heartsCardNames);
+        }
+      }
     }
+    return "No Hearts";
   }
 
   /**
@@ -56,8 +60,12 @@ public class CheckCardAnalize {
    */
   // Sjekk om kortet "Spar dame" finnes blant kortene på hånden
   public static boolean hasQueenOfSpades(List<PlayingCard> hand) {
-    return hand.stream()
-      .anyMatch(card -> card.getSuit() == 'S' && card.getFace() == 12);
+    for (PlayingCard card : hand) {
+      if (card.getSuit() == 'S' && card.getFace() == 12) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
