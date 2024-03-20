@@ -10,16 +10,10 @@ import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
-import org.w3c.dom.Node;
 import javafx.scene.control.TextArea;
-import java.awt.*;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-
-import static javafx.scene.layout.TilePane.setAlignment;
 
 /**
  * Represents a GUI for Cardgame
@@ -35,7 +29,6 @@ public class CardGameGui extends Application {
   private boolean handDealt = false;
 
 
-
   /**
    * Starts the application.
    *
@@ -44,7 +37,7 @@ public class CardGameGui extends Application {
    */
 
   @Override
-  public void start(Stage stage) throws Exception {
+  public void start(Stage stage) {
 
     BorderPane borderPane = new BorderPane();
 
@@ -52,6 +45,8 @@ public class CardGameGui extends Application {
     displayArea.setAlignment(Pos.CENTER);
     displayArea.setPadding(new Insets(10));
     displayArea.setSpacing(10);
+
+
     /**
      * Handles the action event for checking the hand of cards.
      */
@@ -59,13 +54,10 @@ public class CardGameGui extends Application {
     VBox checkHandBox = new VBox(10);
     Button checkhand = new Button("Check hand");
 
-    checkhand.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent actionEvent) {
-        if ( handDealt){
-            analyzeHand();
-          checkhand.setDisable(true);
-        }
+    checkhand.setOnAction(actionEvent -> {
+      if (handDealt) {
+        analyzeHand();
+        checkhand.setDisable(true);
       }
     });
 
@@ -91,15 +83,9 @@ public class CardGameGui extends Application {
       }
     });
 
-    dealHandBox.getChildren().add(dealhand);
-    dealHandBox.setPadding(new Insets(10));
-    dealHandBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
 
 
-    checkHandBox.getChildren().add(checkhand);
-    checkHandBox.setPadding(new Insets(10));
-    checkHandBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-
+    // Add the VBox to the borderPane
     VBox handsDisplayBox = new VBox();
     handsDisplayBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
     handsDisplayBox.setMinSize(300, 300);
@@ -107,46 +93,54 @@ public class CardGameGui extends Application {
     handsDisplayBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
     handsDisplayBox.setAlignment(Pos.CENTER);
 
+// Add the button Deal hand to the VBox
+    dealHandBox.getChildren().add(dealhand);
+    dealHandBox.setPadding(new Insets(10));
+    dealHandBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+
+    // Add the button Check hand to the VBox
+    checkHandBox.getChildren().add(checkhand);
+    checkHandBox.setPadding(new Insets(10));
+    checkHandBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
     handsDisplayBox.getChildren().add(displayArea);
 
+    // Position the Dealhand and Checkhand buttons to Center
     VBox buttonContainer = new VBox(10);
     buttonContainer.getChildren().addAll(dealhand, checkhand);
     buttonContainer.setAlignment(Pos.CENTER);
-
     buttonContainer.setPadding(new Insets(10));
 
-
+    // Add the contentBox and buttonContainer to the borderPane
     HBox contentBox = new HBox(10);
     contentBox.getChildren().addAll(handsDisplayBox, buttonContainer);
     contentBox.setAlignment(Pos.CENTER);
-
     borderPane.setCenter(contentBox);
 
-
+    // Add both contentBox and analysisBox to the VBox
     VBox contentAndAnalysisBox = new VBox(10);
-    contentAndAnalysisBox.getChildren().addAll(contentBox, outputArea); // Add both contentBox and analysisBox to the VBox
+    contentAndAnalysisBox.getChildren().addAll(contentBox, outputArea);
 
+    // Center the VBox contents
     contentAndAnalysisBox.setAlignment(Pos.CENTER); // Center the VBox contents
-    VBox.setMargin(outputArea, new Insets(0,0,0,-100)); // Add margin to the analysisBox
-
+    VBox.setMargin(outputArea, new Insets(0, 0, 0, -100)); // Add margin to the analysisBox
     borderPane.setCenter(contentAndAnalysisBox);
 
-
+    // Set the output area to be non-editable and wrap text
     outputArea.setEditable(false);
     outputArea.setWrapText(true);
     outputArea.setMaxWidth(300); // Set maximum width
     outputArea.setMaxHeight(150); // Set maximum height
 
-
-
-
+    // Create a scene and display it
     Scene scene = new Scene(borderPane, 800, 600);
     stage.setTitle("Card Game");
     stage.setScene(scene);
     stage.show();
   }
 
-  // Method to check the hand
+  /**
+   * Analyzes the hand of cards and updates the output area with the results.
+   */
   private void analyzeHand() {
     // Get the current hand from the DeckOfCards instance
     List<PlayingCard> hand = deck.dealHand(5);
@@ -165,39 +159,36 @@ public class CardGameGui extends Application {
   }
 
 
-  // Display area for showing the cards
-  private final VBox displayArea = new VBox();
+  /**
+   * Method to create a CardView for displaying a PlayingCard.
+   */
+  private class CardView extends Pane {
+    public CardView(PlayingCard card) {
+      // Create an image view for the card
+      ImageView imageView = new ImageView();
+      // Load the image based on the card's suit and rank
+      String imageName = "/cards/" + card.getAsString() + ".png"; // Assuming the images are stored in the "card" directory
+      InputStream inputStream = getClass().getResourceAsStream(imageName);
+      if (inputStream != null) {
+        javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(imageName));
+        imageView.setImage(image);
+        imageView.setFitWidth(50);
+        imageView.setFitHeight(80);// Centering each CardView
+        setPadding(new Insets(20)); // Adjusting padding
+        getChildren().add(imageView);
+      } else {
+        System.out.println("Image file not found: " + imageName);
+      }
+    }
+  }
+
 
   /**
    * Launches the application.
    */
-
   public static void appMain(String[] args) {
     launch(args);
   }
 
 
-    // Method to check if the cards form a 5-flush
-    private class CardView extends Pane {
-      public CardView(PlayingCard card) {
-        // Create an image view for the card
-        ImageView imageView = new ImageView();
-        // Load the image based on the card's suit and rank
-        String imageName = "/cards/" + card.getAsString() + ".png"; // Assuming the images are stored in the "card" directory
-        InputStream inputStream = getClass().getResourceAsStream(imageName);
-        if (inputStream != null) {
-          javafx.scene.image.Image image = new javafx.scene.image.Image(getClass().getResourceAsStream(imageName));
-          imageView.setImage(image);
-          imageView.setFitWidth(50);
-          imageView.setFitHeight(80);// Centering each CardView
-          setPadding(new Insets(20)); // Adjusting padding
-          getChildren().add(imageView);
-        } else {
-          System.out.println("Image file not found: " + imageName);
-        }
-      }
-
-
-
-    }
 }
