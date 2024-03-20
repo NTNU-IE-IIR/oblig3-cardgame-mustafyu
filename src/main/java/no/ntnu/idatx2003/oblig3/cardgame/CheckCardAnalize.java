@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
  */
 public class CheckCardAnalize {
 
-  private static final List<PlayingCard> hand = CardLoader.loadCards();
 
   /**
    * Returns the sum of the values of the cards on the hand.

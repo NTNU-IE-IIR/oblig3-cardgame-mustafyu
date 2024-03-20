@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * Represents a GUI for Cardgame
- * <p>
  * The GUI is used to play the card game. The GUI is used to display the cards and the game state.
  */
 public class CardGameGui extends Application {
@@ -27,6 +26,8 @@ public class CardGameGui extends Application {
   private final TextArea outputArea = new TextArea();
 
   private boolean handDealt = false;
+
+  private List<PlayingCard> hand;
 
 
   /**
@@ -67,27 +68,25 @@ public class CardGameGui extends Application {
 
     VBox dealHandBox = new VBox(10);
     Button dealhand = new Button("Deal hand");
-    dealhand.setOnAction(new EventHandler<ActionEvent>() {
-      @Override
-      public void handle(ActionEvent actionEvent) {
-        List<PlayingCard> hand = deck.dealHand(5);
-        System.out.println("Hand Dealt: " + hand);
-        // Clear the display area
-        displayArea.getChildren().clear();
-        // Display the hand of cards
-        for (PlayingCard card : hand) {
-          displayArea.getChildren().add(new CardView(card));
-        }
-        checkhand.setDisable(false);
-        handDealt = true;
+    dealhand.setOnAction(actionEvent -> {
+      //List<PlayingCard> hand = deck.dealHand(5);
+      this.hand = deck.dealHand(5);
+      System.out.println("Hand Dealt: " + hand);
+      // Clear the display area
+      displayArea.getChildren().clear();
+      // Display the hand of cards
+      for (PlayingCard card : hand) {
+        displayArea.getChildren().add(new CardView(card));
       }
+      checkhand.setDisable(false);
+      handDealt = true;
     });
 
 
 
     // Add the VBox to the borderPane
     VBox handsDisplayBox = new VBox();
-    handsDisplayBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+    handsDisplayBox.setBackground(new Background(new BackgroundFill(Color.CADETBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
     handsDisplayBox.setMinSize(300, 300);
     handsDisplayBox.setMaxSize(300, 300);
     handsDisplayBox.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderWidths.DEFAULT)));
@@ -143,13 +142,13 @@ public class CardGameGui extends Application {
    */
   private void analyzeHand() {
     // Get the current hand from the DeckOfCards instance
-    List<PlayingCard> hand = deck.dealHand(5);
+    //List<PlayingCard> hand = deck.dealHand(5);
 
     // Call the methods from HandAnalyzer and perform the analyses
-    int sum = CheckCardAnalize.sumOfCardValues(hand);
-    String hearts = CheckCardAnalize.getHeartsCards(hand);
-    boolean hasSparDame = CheckCardAnalize.hasQueenOfSpades(hand);
-    boolean isFiveFlush = CheckCardAnalize.isFiveFlush(hand);
+    int sum = CheckCardAnalize.sumOfCardValues(this.hand);
+    String hearts = CheckCardAnalize.getHeartsCards(this.hand);
+    boolean hasSparDame = CheckCardAnalize.hasQueenOfSpades(this.hand);
+    boolean isFiveFlush = CheckCardAnalize.isFiveFlush(this.hand);
 
     // Update the TextArea with the analysis results
     outputArea.setText("Sum of card values: " + sum +
